@@ -59,10 +59,10 @@ def returnStats(failed, succes):
     else:
         print('No playlists failed.')
 
-def main(account, password):
+def main(account, password, verbose_bool):
 
     # Set to True if you want extra information about what's happening
-    VERBOSE = True
+    VERBOSE = verbose_bool
 
     # Parameters for the playlist files
     XMLs = []
@@ -170,10 +170,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Short program to retrieve your playlists from Google Play Music.')
     parser.add_argument('--account', help='Your email address for logging in to Google Play Music', required=True)
     parser.add_argument('--password', help='Your password, generated on the security page. This is NOT your default google password.', required=True)
+    parser.add_argument('--VERBOSE', help='If you want to see what is happening.', required=False)
     args = vars(parser.parse_args())
     if(args['account'] == None):
         print('usage: python fetchPlaylists.py --account <YOUR EMAIL> --password <YOUR PASSWORD>')
     elif(args['password'] == None):
         print('usage: python fetchPlaylists.py --account <YOUR EMAIL> --password <YOUR PASSWORD>')
     else:
-        main(args['account'], args['password'])
+        if args['VERBOSE'] == None:
+            main(args['account'], args['password'], False)
+        else:
+            main(args['account'], args['password'], True)
