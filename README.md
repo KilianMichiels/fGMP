@@ -5,5 +5,8 @@ This program uses the [gmusicapi](https://pypi.python.org/pypi/gmusicapi/10.1.2)
 
 # Use
 - Simply create a password on your [google account security page](https://myaccount.google.com/security) for less secure apps.
-- Fill these credentials in in the python script.
-- Run the script and your playlists will be written to textfiles which you can add to iTunes.
+- Run the script as follows: ```fetchPlaylists.py --account ACCOUNT --password PASSWORD```
+- Your playlists will be written to textfiles which you can add to iTunes.
+
+## Help
+For more help, simply type ```fetchPlaylists.py -h``` in your terminal.
