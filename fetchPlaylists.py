@@ -1,7 +1,6 @@
 # coding=utf-8
 import datetime
 from gmusicapi import Mobileclient
-import tqdm
 import sys
 import argparse
 
