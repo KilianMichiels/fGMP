@@ -79,6 +79,9 @@ def main(account, password, verbose_bool):
         print('                         START                      ')
         print('----------------------------------------------------')
 
+        if VERBOSE:
+            print('Verbosity turned on...')
+
         # Keep track of successful and failed playlists
         succes = []
         failed = []
@@ -90,16 +93,22 @@ def main(account, password, verbose_bool):
             XMLs.append(playlist['name'] + '.txt')
 
         if(len(XMLs) > 0):
-            print('Fetched playlists')
+            print('Fetched playlists...')
         else:
-            print('Playlists not fetched')
+            print('Playlists not fetched.')
             exit(1)
 
         # Fecth al the songs
         all_tracks = api.get_all_songs()
 
+        if len(all_tracks)>0:
+            if VERBOSE:
+                print('Fetched songs...')
+        else:
+            print('Songs not fetched.')
+            exit(1)
+
         # Start putting the tracks to the playlists
-        # TODO: Remove [:1]
         for i, playlist in enumerate(playlists):
             try:
                 # Open textfile
@@ -170,14 +179,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Short program to retrieve your playlists from Google Play Music.')
     parser.add_argument('--account', help='Your email address for logging in to Google Play Music', required=True)
     parser.add_argument('--password', help='Your password, generated on the security page. This is NOT your default google password.', required=True)
-    parser.add_argument('--VERBOSE', help='If you want to see what is happening.', required=False)
+    parser.add_argument('--verbose', help='If you want to see what is happening.', action="store_true", required=False)
     args = vars(parser.parse_args())
     if(args['account'] == None):
         print('usage: python fetchPlaylists.py --account <YOUR EMAIL> --password <YOUR PASSWORD>')
     elif(args['password'] == None):
         print('usage: python fetchPlaylists.py --account <YOUR EMAIL> --password <YOUR PASSWORD>')
     else:
-        if args['VERBOSE'] == None:
-            main(args['account'], args['password'], False)
-        else:
+        if args['verbose']:
             main(args['account'], args['password'], True)
+        else:
+            main(args['account'], args['password'], False)
