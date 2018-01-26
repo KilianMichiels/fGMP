@@ -2,6 +2,7 @@
 import datetime
 from gmusicapi import Mobileclient
 import sys
+import os
 
 def formatTrack(track, encoding):
     """Set the track in the correct iTunes format.
@@ -74,17 +75,38 @@ def returnStats(failed, succes):
     if(len(succes)>0):
         print('Following playlists succeeded:')
         for playlist in succes:
-            print('--> {}'.format(playlist))
+            print('\t--> {}'.format(playlist))
+        print('')
     else:
         print('No playlists succeeded.')
 
     if(len(failed) > 0):
         print('Following playlists failed:')
         for playlist in failed:
-            print('--> {}'.format(playlist))
-        print('Change the name of the failed playlists and try again!')
+            print('\t--> {}'.format(playlist))
+        print('\nHINT: Change the name of the failed playlists and try again!')
     else:
         print('No playlists failed.')
+
+def login(account, password):
+    """Log in to Mobile Client on Google Music.
+
+    Parameters
+    ----------
+    account : String
+        Account used to access the music on Google account.
+    password : String
+        Password generated on the security page of the Google account.
+
+    Returns
+    -------
+    Bool, MobileClient
+        Whether we successfully logged in and the mobile client.
+
+    """
+    api = Mobileclient()
+    logged_in = api.login(account, password, Mobileclient.FROM_MAC_ADDRESS)
+    return logged_in, api
 
 
 def fetchPlaylists(account, password, verbose_bool):
@@ -113,15 +135,15 @@ def fetchPlaylists(account, password, verbose_bool):
     Header = 'Name	Artist	Composer	Album	Grouping	Work	Movement Number	Movement Count	Movement Name	Genre	Size	Time	Disc Number	Disc Count	Track Number	Track Count	Year	Date Modified	Date Added	Bit Rate	Sample Rate	Volume Adjustment	Kind	Equaliser	Comments	Plays	Last Played	Skips	Last Skipped	My Rating	Location'
     encoding = 'utf-8'
 
-    api = Mobileclient()
-    logged_in = api.login(account, password, Mobileclient.FROM_MAC_ADDRESS)
+    # Try to log in
+    logged_in, api = login(account,password)
+
     # logged_in is True if login was successful
-
     if logged_in:
-
-        print('----------------------------------------------------')
-        print('                         START                      ')
-        print('----------------------------------------------------')
+        if VERBOSE:
+            print('----------------------------------------------------')
+            print('                         START                      ')
+            print('----------------------------------------------------')
 
         if VERBOSE:
             print('Verbosity turned on...')
@@ -137,7 +159,8 @@ def fetchPlaylists(account, password, verbose_bool):
             XMLs.append(playlist['name'] + '.txt')
 
         if(len(XMLs) > 0):
-            print('Fetched playlists...')
+            if VERBOSE:
+                print('Fetched playlists...')
         else:
             print('Playlists not fetched.')
             exit(1)
@@ -152,14 +175,20 @@ def fetchPlaylists(account, password, verbose_bool):
             print('Songs not fetched.')
             exit(1)
 
+        # Create subdirectory for the playlists
+        directory = 'Playlists'
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
         # Start putting the tracks to the playlists
         for i, playlist in enumerate(playlists):
             try:
                 # Open textfile
-                myfile = open(XMLs[i], 'w')
+                myfile = open(directory + '/' + XMLs[i], 'w')
 
                 # If file is open
-                print('Successfully opened file.')
+                if VERBOSE:
+                    print('Successfully opened file.')
 
                 # Create a new string to write to file
                 XML = Header + '\n'
@@ -202,6 +231,10 @@ def fetchPlaylists(account, password, verbose_bool):
 
                 if VERBOSE:
                     print('Done with playlist {}.\n'.format(playlist['name']))
+                else:
+                    sys.stdout.write(i*'.' + '\r')
+                    sys.stdout.flush()
+
                 succes.append(XMLs[i])
 
             except IOError as e:
@@ -210,7 +243,7 @@ def fetchPlaylists(account, password, verbose_bool):
                 print(e)
                 print('---------------------------------------')
                 failed.append(XMLs[i])
-
+        print('')
         returnStats(failed, succes)
 
     else:
