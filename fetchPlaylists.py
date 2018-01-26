@@ -2,9 +2,23 @@
 import datetime
 from gmusicapi import Mobileclient
 import sys
-import argparse
 
 def formatTrack(track, encoding):
+    """Set the track in the correct iTunes format.
+
+    Parameters
+    ----------
+    track : Dictionary
+        All information about the track.
+    encoding : String
+        Indicates which encoding to use.
+
+    Returns
+    -------
+    String
+        The track in iTunes format.
+
+    """
     # Fill in the necessary fields
     Name = track['title'].encode(encoding)          if 'title'      in track else ''
     Artist = track['artist'].encode(encoding)       if 'artist'     in track else ''
@@ -43,6 +57,20 @@ def formatTrack(track, encoding):
             Plays+ '\t' + Last_Played+ '\t' + Skips+ '\t' + Last_Skipped+ '\t' + My_Rating+ '\t' + Location + '\n').encode(encoding)
 
 def returnStats(failed, succes):
+    """Return a short summary of the function.
+
+    Parameters
+    ----------
+    failed : Array
+        Array of failed to download/create playlists.
+    succes : Array
+        Array of successfully created playlists.
+
+    Returns
+    -------
+    None
+
+    """
     if(len(succes)>0):
         print('Following playlists succeeded:')
         for playlist in succes:
@@ -58,7 +86,24 @@ def returnStats(failed, succes):
     else:
         print('No playlists failed.')
 
-def main(account, password, verbose_bool):
+
+def fetchPlaylists(account, password, verbose_bool):
+    """Fetch the actual playlists from Google Play and save them as .txt files.
+
+    Parameters
+    ----------
+    account : String
+        Account used to access the music on Google account.
+    password : String
+        Password generated on the security page of the Google account.
+    verbose_bool : Bool
+        Set to True if there needs to be more output.
+
+    Returns
+    -------
+    None
+
+    """
 
     # Set to True if you want extra information about what's happening
     VERBOSE = verbose_bool
@@ -170,22 +215,3 @@ def main(account, password, verbose_bool):
 
     else:
         print('Failed to log in. Please check your credentials')
-
-if __name__ == "__main__":
-    reload(sys)
-    sys.setdefaultencoding('utf8')
-
-    parser = argparse.ArgumentParser(description='Short program to retrieve your playlists from Google Play Music.')
-    parser.add_argument('--account', help='Your email address for logging in to Google Play Music', required=True)
-    parser.add_argument('--password', help='Your password, generated on the security page. This is NOT your default google password.', required=True)
-    parser.add_argument('--verbose', help='If you want to see what is happening.', action="store_true", required=False)
-    args = vars(parser.parse_args())
-    if(args['account'] == None):
-        print('usage: python fetchPlaylists.py --account <YOUR EMAIL> --password <YOUR PASSWORD>')
-    elif(args['password'] == None):
-        print('usage: python fetchPlaylists.py --account <YOUR EMAIL> --password <YOUR PASSWORD>')
-    else:
-        if args['verbose']:
-            main(args['account'], args['password'], True)
-        else:
-            main(args['account'], args['password'], False)
